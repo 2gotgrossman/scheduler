@@ -1,0 +1,4 @@
+	.idea/
+	__pycache__/
+	calendar-python-quickstart.json
+	client_secret.json
