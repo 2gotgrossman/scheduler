@@ -18,10 +18,13 @@ except ImportError:
     flags = None
 
 EST = "-05:00"
+import pytz
+
+tz = pytz.timezone('US/Eastern')
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/calendar-python-quickstart.json
-SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
+SCOPES = 'https://www.googleapis.com/auth/calendar'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Calendar API Python Quickstart'
 
@@ -49,6 +52,9 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
+def datetime_to_gdate(date):
+    pass
+
 
 class Calendar():
     def __init__(self):
@@ -57,23 +63,53 @@ class Calendar():
         self.service = discovery.build('calendar', 'v3', http=self.http)
 
     def get_todays_events(self, calendar_id='primary', tz = EST):
-        now = datetime.now().isoformat() # indicates UTC time
+        now = datetime.now() # indicates UTC time
+        start_of_today = datetime(year=now.year, month=now.month,
+                                  day=now.day, hour=0, minute=0, second=0)
         tomorrow = datetime.now() + timedelta(1)
         midnight = datetime(year=tomorrow.year, month=tomorrow.month,
-                            day=tomorrow.day, hour=0, minute=0, second=0).isoformat()
-        now = now + tz
-        midnight = midnight + tz
+                            day=tomorrow.day, hour=0, minute=0, second=0)
+
+        start_of_today = start_of_today.isoformat() + tz
+        midnight = midnight.isoformat() + tz
         eventsResult = self.service.events().list(
-            calendarId=calendar_id, timeMin=now, timeMax=midnight, singleEvents=True,
+            calendarId=calendar_id, timeMin=start_of_today, timeMax=midnight, singleEvents=True,
             orderBy='startTime').execute()
         events = eventsResult.get('items', [])
+        return events
+
+    def schedule_todo(self, name, start, end, calendar_id = 'primary', tz = EST):
+        timezone = "UTC" + tz
+        event = {
+            'summary': name,
+            'description': 'Created by David2.0',
+            'start': {
+                'dateTime': start,
+                'timeZone': "UTC",
+            },
+            'end': {
+                'dateTime': end,
+                'timeZone': "UTC",
+            },
+        }
+        event = self.service.events().insert(calendarId=calendar_id, body=event).execute()
+
+    def delete_today(self, calendar_id):
+        today = datetime.now(tz=tz)
+        tomorrow = today + timedelta(1)
+        start_of_today = datetime(year=today.year, month=today.month,
+                            day=today.day, hour=0, minute=0, second=0)
+        midnight = datetime(year=tomorrow.year, month=tomorrow.month,
+                            day=tomorrow.day, hour=0, minute=0, second=0)
+
+        events = self.get_todays_events(calendar_id=calendar_id)
+
         for event in events:
-            print(event)
+            self.service.events().delete(calendarId=calendar_id, eventId = event['id']).execute()
 
 
-print(datetime.now())
-print(datetime.today())
-print(datetime.utcnow())
+
+
 
 def main():
     """Shows basic usage of the Google Calendar API.
@@ -82,22 +118,14 @@ def main():
     10 events on the user's calendar.
     """
     c = Calendar()
-    c.get_todays_events()
+    for event in c.get_todays_events():
+        print(event)
 
     # calendar_list = service.calendarList().list().execute()
     # print(calendar_list['items'][0].keys())
     # for calendar_list_entry in calendar_list['items']:
     #     print(calendar_list_entry)
 
-
-
-
-
-    if not events:
-        print('No upcoming events found.')
-    for event in events:
-        start = event['start'].get('dateTime', event['start'].get('date'))
-        print(start, event['summary'])
 
 
 if __name__ == '__main__':
