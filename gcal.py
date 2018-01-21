@@ -32,8 +32,6 @@ def get_credentials():
     if not credentials or credentials.invalid:
         flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
         credentials = tools.run_flow(flow, store)
-    print(dir(credentials))
-    print(credentials.token_expiry)
     return credentials
 
 
@@ -88,8 +86,6 @@ def main():
     c = Calendar()
     for event in c.get_todays_events():
         print(event)
-    print(c.credentials)
-
 
 if __name__ == '__main__':
     main()
