@@ -13,31 +13,19 @@ Also, I at times can make a perfect schedule, but then things happen. Something 
 3. If task complete, it is removed (by user or scheduler) from TODOs. -DONE
 4. If task is incomplete in the time period and user needs a new calendar, user can refresh the calendar.
 
-## Cool features
-1. TODO items input into Trello
-2. Calendar updated on Google  Calendar - DONE
-3. Priority of tasks 
-4. Due dates of tasks
-5. Types of tasks
-
-## Big things to implement
-1. INPUT EVENT
-2. STORE EVENT (can probably be done just with Trello)
-3. CREATE DAY
-4. COMPLETE EVENT 
-5. REFRESH CALENDAR
-
-# Time for a Rewrite
-The bare bones have been implemented. It's time to do a rewrite of the design. The high level works, but we need to get beyond spaghetti code. There are plenty of features to add, but we have to work with something a bit cleaner. So here's the next set of TODOs:
-1. Create timedate functions -- to and from datetime and GCal
-2. Extract the parameter specific parts of the code from the Object Oriented structure -- Use a separate module that will have the parameters
-
 ## Let's Get Them Features Done!
-1. Priority of tasks - take labels into account
 2. Figure out where to host code
 3. If I don't have plans for lunch or dinner, leave space open
 4. For repeating tasks, add them to the backlog
-5. Move tasks that are booked to a Sprint list
 6. At the beginning of every day, delete all repeat tasks, add new repeat tasks, and give priority to the missed tasks from yesterday
-
-
+7. When increasing the priority for a task that I did not complete today, remove its last priority.
+8. Write multiple priority algorithms: random, choose a task from each tier, wait 15 minutes between tasks, prioritize longer or shorter tasks
+9. Google Auth - Figure out how to only approve credentials only once or also from the command line
+10. Mobility - Build a simple PowerUp with Webhook
+11. Repeat Tasks - Daily TODOs that are scheduled either at a certain time or time range
+12. Meal Time - Implement breaks for lunch and dinner
+13. D20 Secure - Increase security of system. Nothing on GitHub should have personal info.
+14. Click Input - Implement ability to create new task from command line.
+15. Cap the amount of time for work in the day: start and end, total time.
+16. Create task categories: Classwork, Coding, Health, Learning, Friends
+17. Implement Due Dates
