@@ -6,7 +6,7 @@ import gdate
 
 now_board_id = trellz.now_board_id
 tasks_on_the_docket_id = trellz.tasks_on_the_docket_id
-current_tasks_list_id = trellz.tasks_on_the_docket_id
+current_tasks_list_id = trellz.current_tasks_list_id
 
 scheduler_calendar_id = "hb2rb5mfqnokct3st6l0hbbiik@group.calendar.google.com"
 
@@ -34,7 +34,7 @@ def get_next_time_block(events, curr_time):
     return curr_time, END_OF_DAY
 
 
-def create_day(tasks, events):
+def create_schedule(tasks, events):
     tasks_to_schedule = []
     curr_time = gdate.get_now()
     while curr_time < END_OF_DAY:
@@ -61,19 +61,54 @@ def create_day(tasks, events):
     return tasks_to_schedule
 
 
-def main():
-    todos = trellz.get_list_of_cards_from_list(tasks_on_the_docket_id)
-    cal = gcal.Calendar()
-    events = cal.get_todays_events()
 
-    tasks = trellz.List(todos)
+class David20():
+    def __init__(self):
+        self.cal = gcal.Calendar()
 
-    cal.delete_today(scheduler_calendar_id)
+    def schedule_the_day(self):
+        todos = trellz.get_list_of_cards_from_list(tasks_on_the_docket_id)
+        current_tasks = trellz.get_list_of_cards_from_list(current_tasks_list_id)
 
-    tasks_to_schedule = create_day(tasks, events)
+        events = self.cal.get_todays_events()
 
-    for task in tasks_to_schedule:
-        cal.schedule_task(task['name'], task['start'], task['end'], calendar_id=scheduler_calendar_id)
+        tasks = trellz.List([todos, current_tasks])
 
+        self.cal.delete_today(scheduler_calendar_id)
 
-main()
+        tasks_to_schedule = create_schedule(tasks, events)
+
+        for task in tasks_to_schedule:
+            self.cal.schedule_task(task['name'], task['start'], task['end'], calendar_id=scheduler_calendar_id)
+        for task in tasks.cards:
+            if task.scheduled:
+                print(task.name)
+                task.move_to_list(current_tasks_list_id)
+
+    def clear_the_day(self):
+        """
+        Moves all active tasks to the backlog
+        :return: returns tasks that were moved to the backlog
+        """
+        self.cal.delete_today(scheduler_calendar_id)
+        current_tasks = trellz.get_list_from_id(current_tasks_list_id)
+
+        # If we didn't complete the task today, increase its priority
+        for task in current_tasks.cards:
+            task.move_to_list(tasks_on_the_docket_id)
+
+        return current_tasks
+
+    def reset_the_day(self):
+        """
+        Clears the day and increases priorities of incomplete tasks
+        :return: returns tasks that were moved to the backlog
+        """
+        tasks_moved_to_backlog = self.clear_the_day()
+        for task in tasks_moved_to_backlog.cards:
+            last_priority = trellz.get_label_priority(task.labels)
+            if last_priority < 4:
+                task.add_label(trellz.priority_map[last_priority + 1])
+
+D20 = David20()
+D20.reset_the_day()
