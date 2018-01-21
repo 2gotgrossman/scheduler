@@ -23,7 +23,7 @@ def update():
     d = create_day.David20()
     d.update_schedule()
 
-# @D20.command()
+@D20.command()
 @click.option("--many", is_flag = True)
 def finish(many):
     d = create_day.David20()
@@ -47,6 +47,14 @@ def finish(many):
         d.complete_task(current_tasks[value])
 
     print("Drink a glass of water, take 10 deep breaths, and then get to the next one!")
+
+@D20.command()
+@click.option('--name', prompt="Task name")
+@click.option('--time', prompt='Time for completion (minutes)', type=int)
+@click.option('--repeat', prompt="Repeat task?", type=bool)
+def new(name, time, repeat):
+    pass
+    # print(name, time, repeat)
 
 
 # D20 add --repeat-task
