@@ -6,7 +6,7 @@ from functools import cmp_to_key
 
 
 key = 'cb74c5bf3faa22a766482259495aeeb4'
-token = '016c716b1b341bcc6c8582e9a08402d5a96584b720e6918b58e7f970d7e5a122'
+token = '858a84edbb439884febcc612ef8b35ac74b755122c1e11000217d9df3dc77532'
 #   https://trello.com/1/authorize?response_type=token&key=[[  YOUR KEY HERE ]]&scope=read,write&expiration=never&name=Trello+API+Demo
 #
 #   Note that you can change the scope, expiration, and name (the name is used to identify who you gave access to at trello.com/your/account )
@@ -58,6 +58,23 @@ def get_list_of_boards(board_id, params = None):
 
     return response.json()
 
+def create_card(list_id, name, labels=None, desc=None):
+    card_url = base + "card"
+    params_key_and_token = {'key': key, 'token': token}
+    params_key_and_token['name'] = name
+    params_key_and_token['idList'] = list_id
+    if desc:
+        params_key_and_token['desc'] = desc
+
+    response = requests.post(card_url, params=params_key_and_token)
+
+    card = Card(response.json()['id'])
+    if labels:
+        for label in labels:
+            response = card.add_label(label)
+
+    return response.json()
+
 
 
 class Card():
@@ -76,12 +93,12 @@ class Card():
 
     def time_for_completion(self):
         if self.desc == '':
-            return timedelta(hours=1)
+            return timedelta(hours=.5)
         elif 'h' in self.desc:
-            hours = int(''.join([i for i in self.desc if i.isalpha()]))
+            hours = int(''.join([i for i in self.desc if not i.isalpha()]))
             return timedelta(hours=hours)
         elif 'm' in self.desc:
-            minutes = int(''.join([i for i in self.desc if i.isalpha()]))
+            minutes = int(''.join([i for i in self.desc if not i.isalpha()]))
             return timedelta(minutes=minutes)
 
     def move_to_list(self, new_board_id):
@@ -96,6 +113,16 @@ class Card():
 
         response = requests.post(label_url, params=params_key_and_token)
         print(response.url)
+        return response.json()
+
+    def archive_me(self):
+        label_url = base + "cards/" + self.id + "/closed"
+        params_key_and_token = {'key': key, 'token': token, 'value' : 'true'}
+
+        response = requests.put(label_url, params=params_key_and_token)
+        print(response.url)
+        print(token)
+        json_print(response.json())
         return response.json()
 
 label_map = {
@@ -124,11 +151,7 @@ def priority_function(a, b):
     a_label_priority = get_label_priority(a.labels)
     b_label_priority = get_label_priority(b.labels)
 
-    if a_label_priority != b_label_priority:
-        return b_label_priority - a_label_priority
-    else:
-        # Schedule the longer-taking task first
-        return (b.time_for_completion() - a.time_for_completion()).total_seconds()
+    return b_label_priority - a_label_priority
 
 
 class List():
@@ -137,15 +160,13 @@ class List():
 
         :param dict_of_cards: Either list of dicts or dict
         """
-        self.dict_of_cards = []
-        if type(dict_of_cards[0]) == list:
-            for card_dict in dict_of_cards:
-                self.dict_of_cards.extend(card_dict)
-        else:
-            self.dict_of_cards = dict_of_cards
-
         self.cards = []
-        for card in self.dict_of_cards:
+        self.dict_of_cards = []
+        self.add_cards(dict_of_cards)
+
+    def add_cards(self, dict_of_cards):
+        self.dict_of_cards.extend(dict_of_cards)
+        for card in dict_of_cards:
             self.cards.append(Card(card))
 
     def prioritize(self):
