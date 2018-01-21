@@ -67,23 +67,18 @@ class David20():
         self.cal = gcal.Calendar()
 
     def schedule_the_day(self):
-        todos = trellz.get_list_of_cards_from_list(tasks_on_the_docket_id)
+        todos = trellz.get_list_from_id(tasks_on_the_docket_id)
         current_tasks = trellz.get_list_of_cards_from_list(current_tasks_list_id)
+        todos.add_cards(current_tasks)
 
         events = self.cal.get_todays_events()
 
-        tasks = trellz.List(todos)
-        tasks.add_cards(current_tasks)
-
-        self.cal.delete_today(scheduler_calendar_id)
-
-        tasks_to_schedule = create_schedule(tasks, events)
+        tasks_to_schedule = create_schedule(todos, events)
 
         for task in tasks_to_schedule:
             self.cal.schedule_task(task['name'], task['start'], task['end'], calendar_id=scheduler_calendar_id)
-        for task in tasks.cards:
+        for task in todos.cards:
             if task.scheduled:
-                print(task.name)
                 task.move_to_list(current_tasks_list_id)
 
     def clear_the_day(self):
