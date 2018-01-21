@@ -11,7 +11,7 @@ current_tasks_list_id = trellz.current_tasks_list_id
 scheduler_calendar_id = "hb2rb5mfqnokct3st6l0hbbiik@group.calendar.google.com"
 
 tomorrow = gdate.get_now() + timedelta(days=1)
-END_OF_DAY = gdate.get_midnight(tomorrow) - timedelta(hours=1)  # 8PM
+END_OF_DAY = gdate.get_midnight(tomorrow) - timedelta(hours=0)  # 8PM
 
 
 def is_dateTime(event, key):
@@ -72,7 +72,8 @@ class David20():
 
         events = self.cal.get_todays_events()
 
-        tasks = trellz.List([todos, current_tasks])
+        tasks = trellz.List(todos)
+        tasks.add_cards(current_tasks)
 
         self.cal.delete_today(scheduler_calendar_id)
 
@@ -110,5 +111,28 @@ class David20():
             if last_priority < 4:
                 task.add_label(trellz.priority_map[last_priority + 1])
 
-D20 = David20()
-D20.reset_the_day()
+    def update_schedule(self):
+        self.clear_the_day()
+        self.schedule_the_day()
+
+    def get_current_tasks(self):
+        current_tasks = trellz.get_list_from_id(current_tasks_list_id)
+        names = []
+        for task in current_tasks.cards:
+            names.append(task.name)
+
+        return names
+
+    # TODO: Clean up task in List of cards. We remove the card from Trello, but leave it in the calendar and List object
+    def complete_task(self, name):
+        current_tasks = trellz.get_list_from_id(current_tasks_list_id)
+        for task in current_tasks.cards:
+            if task.name == name:
+                task.archive_me()
+
+
+if __name__ == "__main__":
+    D20 =David20()
+    D20.schedule_the_day()
+    D20.clear_the_day()
+
