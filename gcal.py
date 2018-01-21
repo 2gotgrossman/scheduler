@@ -13,7 +13,7 @@ import gdate
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/calendar-python-quickstart.json
 SCOPES = 'https://www.googleapis.com/auth/calendar'
-CLIENT_SECRET_FILE = 'client_secret.json'
+CLIENT_SECRET_FILE = '/Users/David/code/scheduler/client_secret.json'
 
 
 def get_credentials():
@@ -25,7 +25,7 @@ def get_credentials():
     Returns:
         Credentials, the obtained credential.
     """
-    credential_path = os.path.join('.', 'calendar-python-quickstart.json')
+    credential_path = '/Users/David/code/scheduler/calendar-python-quickstart.json'
 
     store = Storage(credential_path)
     credentials = store.get()
