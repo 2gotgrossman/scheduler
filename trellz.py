@@ -55,7 +55,6 @@ def get_list_of_boards(board_id, params = None):
 
     board_url = base + "boards/" + board_id + "/lists"
     response = requests.get(board_url, params=params_key_and_token)
-    print(response.content)
 
     return response.json()
 
@@ -85,6 +84,20 @@ class Card():
             minutes = int(''.join([i for i in self.desc if i.isalpha()]))
             return timedelta(minutes=minutes)
 
+    def move_to_list(self, new_board_id):
+        move_url = base + "cards/" + self.id + "/idList"
+        params_key_and_token = {'key': key, 'token': token, 'value': new_board_id}
+        response = requests.put(move_url, params=params_key_and_token)
+        return response.json()
+
+    def add_label(self, color):
+        label_url = base + "cards/" + self.id + "/labels"
+        params_key_and_token = {'key': key, 'token': token, 'value': color}
+
+        response = requests.post(label_url, params=params_key_and_token)
+        print(response.url)
+        return response.json()
+
 label_map = {
     'green' : 1,
     'yellow' : 2,
@@ -92,10 +105,17 @@ label_map = {
     'red' : 4
 }
 
+priority_map = {
+    1 : 'green',
+    2: 'yellow',
+    3: 'orange',
+    4: 'red'
+}
+
 def get_label_priority(labels):
     max_priority = 0
     for label in labels:
-        if label_map[label] > max_priority:
+        if label in label_map and label_map[label] > max_priority:
             max_priority = label_map[label]
     return max_priority
 
@@ -105,7 +125,7 @@ def priority_function(a, b):
     b_label_priority = get_label_priority(b.labels)
 
     if a_label_priority != b_label_priority:
-        return a_label_priority - b_label_priority
+        return b_label_priority - a_label_priority
     else:
         # Schedule the longer-taking task first
         return (b.time_for_completion() - a.time_for_completion()).total_seconds()
@@ -113,13 +133,28 @@ def priority_function(a, b):
 
 class List():
     def __init__(self, dict_of_cards):
-        self.dict_of_cards = dict_of_cards
+        """
+
+        :param dict_of_cards: Either list of dicts or dict
+        """
+        self.dict_of_cards = []
+        if type(dict_of_cards[0]) == list:
+            for card_dict in dict_of_cards:
+                self.dict_of_cards.extend(card_dict)
+        else:
+            self.dict_of_cards = dict_of_cards
+
         self.cards = []
-        for card_dict in dict_of_cards:
-            self.cards.append(Card(card_dict))
+        for card in self.dict_of_cards:
+            self.cards.append(Card(card))
 
     def prioritize(self):
         self.cards.sort(key=cmp_to_key(priority_function))
         return self.cards
 
-print(json.dumps(get_list_of_cards_from_list(current_tasks_list_id), sort_keys=True, indent = 4, separators = (',', ': ')))
+def get_list_from_id(list_id):
+    cards_json = get_list_of_cards_from_list(list_id)
+    return List(cards_json)
+
+def json_print(js):
+    print(json.dumps(js, sort_keys=True, indent=4, separators=(',', ': ')))
