@@ -8,15 +8,15 @@ Also, I at times can make a perfect schedule, but then things happen. Something 
 
 ## Minimum requirements for the solution
 
-1. User inputs TODO items
-2. Scheduler schedules items in calendar
-3. If task complete, it is removed (by user or scheduler) from TODOs.
+1. User inputs TODO items - DONE
+2. Scheduler schedules items in calendar - DONE
+3. If task complete, it is removed (by user or scheduler) from TODOs. -DONE
 4. If task is incomplete in the time period and user needs a new calendar, user can refresh the calendar.
 
 ## Cool features
 1. TODO items input into Trello
-2. Calendar updated on Google  Calendar
-3. Priority of tasks
+2. Calendar updated on Google  Calendar - DONE
+3. Priority of tasks 
 4. Due dates of tasks
 5. Types of tasks
 
@@ -26,3 +26,18 @@ Also, I at times can make a perfect schedule, but then things happen. Something 
 3. CREATE DAY
 4. COMPLETE EVENT 
 5. REFRESH CALENDAR
+
+# Time for a Rewrite
+The bare bones have been implemented. It's time to do a rewrite of the design. The high level works, but we need to get beyond spaghetti code. There are plenty of features to add, but we have to work with something a bit cleaner. So here's the next set of TODOs:
+1. Create timedate functions -- to and from datetime and GCal
+2. Extract the parameter specific parts of the code from the Object Oriented structure -- Use a separate module that will have the parameters
+
+## Let's Get Them Features Done!
+1. Priority of tasks - take labels into account
+2. Figure out where to host code
+3. If I don't have plans for lunch or dinner, leave space open
+4. For repeating tasks, add them to the backlog
+5. Move tasks that are booked to a Sprint list
+6. At the beginning of every day, delete all repeat tasks, add new repeat tasks, and give priority to the missed tasks from yesterday
+
+
