@@ -2,6 +2,7 @@ import sys
 sys.path.append('/Users/David/anaconda/envs/sched/lib/python3.6/site-packages/')
 import create_day
 import click
+import os
 
 @click.group()
 def D20():
@@ -9,6 +10,7 @@ def D20():
 
 @D20.command()
 def start():
+    os.system("python3 /Users/David/code/scheduler/gcal.py")
     d = create_day.David20()
     d.reset_the_day()
     d.schedule_the_day()
