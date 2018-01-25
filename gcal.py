@@ -84,8 +84,7 @@ def main():
     10 events on the user's calendar.
     """
     c = Calendar()
-    for event in c.get_todays_events():
-        print(event)
+
 
 if __name__ == '__main__':
     main()
