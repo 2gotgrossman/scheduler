@@ -1,6 +1,6 @@
 import requests
 import json
-from datetime import datetime, timedelta
+from datetime import timedelta
 from functools import cmp_to_key
 
 
@@ -91,6 +91,7 @@ class Card():
         self.url = dict_of_attrs['url']
         self.scheduled = False
 
+    # TODO: Rewrite time for completion. Need better way to store / standard
     def time_for_completion(self):
         if self.desc == '':
             return timedelta(hours=.5)
@@ -112,7 +113,6 @@ class Card():
         params_key_and_token = {'key': key, 'token': token, 'value': color}
 
         response = requests.post(label_url, params=params_key_and_token)
-        print(response.url)
         return response.json()
 
     def archive_me(self):
@@ -120,11 +120,10 @@ class Card():
         params_key_and_token = {'key': key, 'token': token, 'value' : 'true'}
 
         response = requests.put(label_url, params=params_key_and_token)
-        print(response.url)
-        print(token)
-        json_print(response.json())
         return response.json()
 
+# TODO: Rethink how labels are stored. Right now, labels are used for priority and repeated tasks. Could be extended
+# TODO:         to categories
 label_map = {
     'green' : 1,
     'yellow' : 2,
@@ -154,12 +153,9 @@ def priority_function(a, b):
     return b_label_priority - a_label_priority
 
 
+# TODO: When adding cards, make sure card is not already in the List
 class List():
     def __init__(self, dict_of_cards):
-        """
-
-        :param dict_of_cards: Either list of dicts or dict
-        """
         self.cards = []
         self.dict_of_cards = []
         self.add_cards(dict_of_cards)
