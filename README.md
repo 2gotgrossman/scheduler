@@ -29,3 +29,5 @@ Also, I at times can make a perfect schedule, but then things happen. Something 
 15. Cap the amount of time for work in the day: start and end, total time.
 16. Create task categories: Classwork, Coding, Health, Learning, Friends
 17. Implement Due Dates
+18. Comment existing code
+19. Longer Tasks - Break up into 1 hour segments
